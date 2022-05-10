@@ -1,9 +1,10 @@
-from asyncio.windows_events import NULL
 import random
 from time import sleep
 from telebot import types, telebot, TeleBot
 import requests
 import asyncio
+
+from telegram import User
 from Skysmart import answerparse
 
 #ur telegram bot token
@@ -28,31 +29,38 @@ def Skysmart(message):
             if otv[i] != '':
                 bot.send_message(message.chat.id, text=otv[i])
     else:
-        bot.send_message(message.chat.id, text='Это не ссылка!')
+        if message.text.startswith('http'):
+            bot.send_message(message.chat.id, text='Такой тип ссылкок не поддерживается')
+        else:
+            bot.send_message(message.chat.id, text='Это не ссылка')
 
 def RandomRandint(message):
     range = message.text
     if range.isnumeric():
-        answer = random.randint(1, int(range))
-        bot.send_message(message.chat.id, text=answer)
+        if int(range) > 0:
+            answer = random.randint(1, int(range))
+            bot.send_message(message.chat.id, text=answer)
+        else:
+            bot.send_message(message.chat.id, text='Число равно 0')
     else:
         bot.send_message(message.chat.id, text='Это не число')
 
 def Minigame(message):
         UserNumber = message.text
         if UserNumber.isnumeric():
-            UserNumber = int(UserNumber)
-            BotNumber = random.randint(1, 10)
-            bot.send_message(message.chat.id, text='Ты выбрал: ' + str(UserNumber))
-            bot.send_message(message.chat.id, text='Бот выбрал: ' + str(BotNumber))
-            if (UserNumber == BotNumber):
+            if int(UserNumber) > 1 and int(UserNumber) < 10:
+                UserNumber = int(UserNumber)
+                BotNumber = random.randint(1, 10)
+                bot.send_message(message.chat.id, text='Ты выбрал: ' + str(UserNumber))
+                bot.send_message(message.chat.id, text='Бот выбрал: ' + str(BotNumber))
+                if (UserNumber == BotNumber):
                     bot.send_message(message.chat.id, text='Ты выйграл!')
+                else:
+                    bot.send_message(message.chat.id, text='Ничего в следующий раз все получится!')
             else:
-                bot.send_message(message.chat.id, text='Ничего в следующий раз все получится!')
+                bot.send_message(message.chat.id, text='Число меньше 1 или больше 10')
         else:
             bot.send_message(message.chat.id, text='Это не число')
-            bot.send_message(message.chat.id, text='Введи число от 1 до 10')
-            bot.register_next_step_handler(message, Minigame)
 
 @bot.message_handler(commands=['start'])
 def Panel(message):
@@ -111,6 +119,7 @@ def ShopaSlona(message):
         bot.register_next_step_handler(message, Minigame)      
     
     if message.text == 'Обновления':
+        bot.send_message(message.chat.id, text='10.05.22 - Исправлены возможные случаи краша бота')
         bot.send_message(message.chat.id, text='09.05.22 - Исправлены недоработки')
         bot.send_message(message.chat.id, text='08.05.22 - Добавлен генератор рандомных чисел')
         bot.send_message(message.chat.id, text='05.05.22 - Добавлена поддержка Skysmart (в информации поддерживаемые ссылки)')
@@ -133,6 +142,7 @@ def ShopaSlona(message):
 
     if message.text == '⒈Статистика бота':
         bot.send_message(message.chat.id, text='Сегодня ботом воспользовались: ' + str(1))
+        bot.send_message(message.chat.id, text='Если че не сделано, я пока что 1 вывожу')
 
     if message.text == '⒉Остановить бота':
         bot.send_message(message.chat.id, text='Бот остановлен')
