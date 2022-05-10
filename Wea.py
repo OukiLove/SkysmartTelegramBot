@@ -10,7 +10,7 @@ from Skysmart import answerparse
 token = ''
 bot = TeleBot(token)
 
-def Dadada(message):
+def Skysmart(message):
     if message.text.startswith('https://api-edu.skysmart.ru/api/v1/dnevnikru/homework?taskHash=') or message.text.startswith('https://edu.skysmart.ru/student/'):
         UserInput = message.text
         if message.text.startswith('https://edu.skysmart.ru/student/'):
@@ -30,13 +30,13 @@ def Dadada(message):
     else:
         bot.send_message(message.chat.id, text='Это не ссылка!')
 
-def Bomber(message):
-    UserInput = message.text
-    if message.text.startswith('+'):
-        2 + 2
+def RandomRandint(message):
+    range = message.text
+    if range.isnumeric():
+        answer = random.randint(1, int(range))
+        bot.send_message(message.chat.id, text=answer)
     else:
-        bot.send_message(message.chat.id, text='Начните вводить телефон с "+"')
-
+        bot.send_message(message.chat.id, text='Это не число')
 
 def Minigame(message):
         UserNumber = message.text
@@ -52,28 +52,40 @@ def Minigame(message):
         else:
             bot.send_message(message.chat.id, text='Это не число')
             bot.send_message(message.chat.id, text='Введи число от 1 до 10')
-#            bot.register_next_step_handler(message, Minigame) лучше убрать, потому что если пользователь случайно нажал на Minigame, он будет вынужден ввести число
+            bot.register_next_step_handler(message, Minigame)
 
 @bot.message_handler(commands=['start'])
 def Panel(message):
     keyboard = telebot.types.ReplyKeyboardMarkup(True)
-    keyboard.row('Skysmart', 'РЭШ', 'Погода', 'Обновления', 'Мини игра')
+    keyboard.row('Skysmart', 'РЭШ', 'Обновления')
+    keyboard.row('Мини игра', 'Погода', 'Генератор чисел')
     button = telebot.types.KeyboardButton(text='Информация')
     keyboard.add(button)
-    bot.send_message(message.chat.id, 'Привет, выбери функцию', reply_markup=keyboard)
+    if message.text == '⒊Назад':
+        bot.send_message(message.chat.id, text='Ты вышел из админ панельки', reply_markup=keyboard)
+    else:
+        bot.send_message(message.chat.id, text='Привет, выбери функцию', reply_markup=keyboard)
+
+def AdminPanel(message):
+    # ⒈ ⒉ ⒊ ⒋ ⒌ ⒍ ⒎ ⒏ ⒐ ⒑ ⒒ ⒓ ⒔ ⒕ ⒖ ⒗ ⒘ ⒙ ⒚ ⒛ Такие числа, потому что люди могут ручками написать, например "Остановить бота" и бот остановится
+    keyboard = telebot.types.ReplyKeyboardMarkup(True)
+    keyboard.row('⒈Статистика бота', '⒉Остановить бота')
+    button = telebot.types.KeyboardButton(text='⒊Назад')
+    keyboard.add(button)
+    bot.send_message(message.chat.id, 'Ты попал в админ панельку :D', reply_markup=keyboard)
 
 @bot.message_handler(content_types=['text'])
 def ShopaSlona(message):
     if message.text == 'Skysmart':
         bot.send_message(message.chat.id, text='Вставте ссылку')
-        bot.register_next_step_handler(message, Dadada)
+        bot.register_next_step_handler(message, Skysmart)
+
+    if message.text == 'Генератор чисел':
+        bot.send_message(message.chat.id, text='Введите диапазон чисел')
+        bot.register_next_step_handler(message, RandomRandint)
 
     if message.text == 'РЭШ':
         bot.send_message(message.chat.id, text='Расширение для Google Chrome: https://resh.ilsur.dev/')
-    
-    if message.text == 'Я гей':
-        bot.send_message(message.chat.id, text='Нашел пасхалку, но бот остановиться навсегда :DDD')
-        bot.stop_bot()
 
     if message.text == 'Погода':
         city = 'Omsk,RU'
@@ -98,7 +110,9 @@ def ShopaSlona(message):
         bot.send_message(message.chat.id, text='Бот выбрал число от 1 до 10. Твоя задача угадать')
         bot.register_next_step_handler(message, Minigame)      
     
-    if message.text == ('Обновления'):
+    if message.text == 'Обновления':
+        bot.send_message(message.chat.id, text='09.05.22 - Исправлены недоработки')
+        bot.send_message(message.chat.id, text='08.05.22 - Добавлен генератор рандомных чисел')
         bot.send_message(message.chat.id, text='05.05.22 - Добавлена поддержка Skysmart (в информации поддерживаемые ссылки)')
         bot.send_message(message.chat.id, text='04.05.22 - Добавлена мини игра')
         bot.send_message(message.chat.id, text='04.05.22 - Добавлена поддержка РЭШ')
@@ -106,9 +120,26 @@ def ShopaSlona(message):
         bot.send_message(message.chat.id, text='29.04.22 - Добавлена погода')
         bot.send_message(message.chat.id, text='29.04.22 - Добавлены кнопки снизу')
 
-    if message.text == ('Информация'):
+    if message.text == 'Информация':
         bot.send_message(message.chat.id, text='Разработчики: \n@Ouki76\n@Ded_in_morg')
-        bot.send_message(message.chat.id, text='Skysmart поддерживает 2 типа ссылки:\n-https://api-edu.skysmart.ru/api/v1/dnevnikru/homework?taskHash=\n-https://edu.skysmart.ru/student/')
+        bot.send_message(message.chat.id, text='Сайт разработчика:\nhttps://oukilove.github.io/')
+        bot.send_message(message.chat.id, text='Исходники телеграмм бота:\nhttps://github.com/OukiLove/SkysmartTelegramBot')
         bot.send_message(message.chat.id, text='Скрипт, который использует бот: https://github.com/xartd0/SKYSMART-ANSWERS')
-            
+        bot.send_message(message.chat.id, text='Skysmart поддерживает 2 типа ссылки:\n-https://api-edu.skysmart.ru/api/v1/dnevnikru/homework?taskHash=\n-https://edu.skysmart.ru/student/')      
+
+# -------------------------------------Admin Command---------------------------------------------------------------------------------
+    if message.text == 'password':
+        AdminPanel(message)
+
+    if message.text == '⒈Статистика бота':
+        bot.send_message(message.chat.id, text='Сегодня ботом воспользовались: ' + str(1))
+
+    if message.text == '⒉Остановить бота':
+        bot.send_message(message.chat.id, text='Бот остановлен')
+        bot.stop_bot()
+    
+    if message.text == '⒊Назад':
+        Panel(message)
+# -------------------------------------Admin Command---------------------------------------------------------------------------------
+
 bot.polling(non_stop=True)
