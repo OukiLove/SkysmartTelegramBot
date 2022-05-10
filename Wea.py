@@ -3,8 +3,6 @@ from time import sleep
 from telebot import types, telebot, TeleBot
 import requests
 import asyncio
-
-from telegram import User
 from Skysmart import answerparse
 
 #ur telegram bot token
