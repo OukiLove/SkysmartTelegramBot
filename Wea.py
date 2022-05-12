@@ -4,10 +4,30 @@ from telebot import types, telebot, TeleBot
 import requests
 import asyncio
 from Skysmart import answerparse
+from datetime import datetime
+from os import fspath, mkdir, path
 
 #ur telegram bot token
 token = ''
 bot = TeleBot(token)
+
+def addToStat(command):
+    now = datetime.now()
+    # if not folder with name sata then create it
+    if not path.exists(f"stat"):
+        mkdir("stat")
+    filename = f"stat/{now.day}.{now.month}.{now.year}.txt"
+    if not fspath(filename):
+        with open(filename, "w") as f:
+            f.write("")
+    with open(filename, "a") as f:
+        f.write(command + "\n")
+
+def readDayStat():
+    now = datetime.now()
+    filename = f"stat/{now.day}.{now.month}.{now.year}.txt"
+    linesCount = open(filename, "r").readlines()
+    return len(linesCount)
 
 def Skysmart(message):
     if message.text.startswith('https://api-edu.skysmart.ru/api/v1/dnevnikru/homework?taskHash=') or message.text.startswith('https://edu.skysmart.ru/student/'):
@@ -83,17 +103,21 @@ def AdminPanel(message):
 @bot.message_handler(content_types=['text'])
 def ShopaSlona(message):
     if message.text == 'Skysmart':
+        addToStat(message.text)
         bot.send_message(message.chat.id, text='Вставте ссылку')
         bot.register_next_step_handler(message, Skysmart)
 
     if message.text == 'Генератор чисел':
+        addToStat(message.text)
         bot.send_message(message.chat.id, text='Введите диапазон чисел')
         bot.register_next_step_handler(message, RandomRandint)
 
     if message.text == 'РЭШ':
+        addToStat(message.text)
         bot.send_message(message.chat.id, text='Расширение для Google Chrome: https://resh.ilsur.dev/')
 
     if message.text == 'Погода':
+        addToStat(message.text)
         city = 'Omsk,RU'
         city_id = 1496153
         appid = '6abf7fd9e585da77f917619a30194935'
@@ -113,21 +137,21 @@ def ShopaSlona(message):
                 pass
 
     if message.text == 'Мини игра':
+        addToStat(message.text)
         bot.send_message(message.chat.id, text='Бот выбрал число от 1 до 10. Твоя задача угадать')
         bot.register_next_step_handler(message, Minigame)      
     
     if message.text == 'Обновления':
-        bot.send_message(message.chat.id, text='10.05.22 - Исправлены возможные случаи краша бота')
+        addToStat(message.text)
         bot.send_message(message.chat.id, text='09.05.22 - Исправлены недоработки')
         bot.send_message(message.chat.id, text='08.05.22 - Добавлен генератор рандомных чисел')
         bot.send_message(message.chat.id, text='05.05.22 - Добавлена поддержка Skysmart (в информации поддерживаемые ссылки)')
         bot.send_message(message.chat.id, text='04.05.22 - Добавлена мини игра')
         bot.send_message(message.chat.id, text='04.05.22 - Добавлена поддержка РЭШ')
-        bot.send_message(message.chat.id, text='30.04.22 - Добавлена минимальная и максимальная температура')
         bot.send_message(message.chat.id, text='29.04.22 - Добавлена погода')
-        bot.send_message(message.chat.id, text='29.04.22 - Добавлены кнопки снизу')
 
     if message.text == 'Информация':
+        addToStat(message.text)
         bot.send_message(message.chat.id, text='Разработчики: \n@Ouki76\n@Ded_in_morg')
         bot.send_message(message.chat.id, text='Сайт разработчика:\nhttps://oukilove.github.io/')
         bot.send_message(message.chat.id, text='Исходники телеграмм бота:\nhttps://github.com/OukiLove/SkysmartTelegramBot')
@@ -139,8 +163,8 @@ def ShopaSlona(message):
         AdminPanel(message)
 
     if message.text == '⒈Статистика бота':
-        bot.send_message(message.chat.id, text='Сегодня ботом воспользовались: ' + str(1))
-        bot.send_message(message.chat.id, text='Если че не сделано, я пока что 1 вывожу')
+        brawl = readDayStat()
+        bot.send_message(message.chat.id, text='Сегодня ботом воспользовались: ' + str(brawl))
 
     if message.text == '⒉Остановить бота':
         bot.send_message(message.chat.id, text='Бот остановлен')
@@ -149,5 +173,4 @@ def ShopaSlona(message):
     if message.text == '⒊Назад':
         Panel(message)
 # -------------------------------------Admin Command---------------------------------------------------------------------------------
-
 bot.polling(non_stop=True)
